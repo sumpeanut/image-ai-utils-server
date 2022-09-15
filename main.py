@@ -30,6 +30,8 @@ from request_models import BaseImageGenerationRequest, ImageArrayResponse, Image
 from universal_pipeline import StableDiffusionUniversalPipeline, preprocess, preprocess_mask
 from utils import base64url_to_image, image_to_base64url, size_from_aspect_ratio, download_models
 
+from parlance_zz_noise import ParlanceZzNoise
+
 logger = logging.getLogger(__name__)
 security = HTTPBasic()
 
@@ -248,6 +250,11 @@ async def inpainting(websocket: WebSocket):
     if request.mask:
         mask = base64url_to_image(request.mask).resize(size)
 
+    filters = [ ParlanceZzNoise() ]
+    
+    for filter in filters:
+        source_image = filter.applyTo( request, source_image, mask )
+
     with autocast('cuda'):
         preprocessed_source_image = preprocess(source_image).to(pipeline.device)
         preprocessed_mask = None
@@ -282,6 +289,15 @@ async def inpainting(websocket: WebSocket):
         mask=preprocessed_mask,
         alpha=preprocessed_alpha,
     )
+
+    # Add altered source for debugging
+    if request.experimental:
+        data_string = f'data:{mimetypes.types_map[f".{request.output_format.lower()}"]};base64,' \
+        .encode()
+        buffer = BytesIO()
+        source_image.save(buffer, format=request.output_format)
+        response.images.append(data_string + b64encode(buffer.getvalue()))
+    
     await websocket.send_json(
         {'status': WebSocketResponseStatus.FINISHED, 'result': json.loads(response.json())}
     )
