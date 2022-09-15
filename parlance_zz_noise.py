@@ -1,41 +1,17 @@
 import functools
-from json import JSONDecodeError
-
-from exceptions import BatchSizeIsTooLargeException, AspectRatioTooWideException, \
-    BaseWebSocketException
-from settings import settings  # noqa
-from logging_settings import LOGGING  # noqa
-
 import json
 import logging
-import mimetypes
-from base64 import b64encode
-from io import BytesIO
-from typing import Callable
 
+import torch
 import numpy as np
 import PIL
 from PIL import Image
-from PIL import ImageFilter
-from PIL import ImageEnhance
 
 import skimage
 from skimage.exposure import match_histograms
 
-import torch
-from torch import autocast
-import uvicorn
-from fastapi import FastAPI, HTTPException, Depends, WebSocket, status, WebSocketDisconnect
-from fastapi.middleware.gzip import GZipMiddleware
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from torch import autocast
-
-import esrgan_upscaler
-from request_models import BaseDiffusionRequest, ImageArrayResponse, ImageToImageRequest, \
-    TextToImageRequest, GoBigRequest, UpscaleResponse, UpscaleRequest, InpaintingRequest, \
-    WebSocketResponseStatus
-from universal_pipeline import StableDiffusionUniversalPipeline, preprocess, preprocess_mask
-from utils import base64url_to_image, image_to_base64url, size_from_aspect_ratio
+from request_models import InpaintingRequest
+from utils import size_from_aspect_ratio
 
 logger = logging.getLogger(__name__)
 
@@ -286,12 +262,16 @@ class ParlanceZzNoise:
     ):
         super().__init__()
 
-    def applyTo(request: InpaintingRequest, source_image: Image.Image, mask: Image.Image): 
+    def applyTo(self, request: InpaintingRequest, source_image: Image.Image, mask: Image.Image): 
         aspect_ratio = source_image.width / source_image.height
         size = size_from_aspect_ratio(aspect_ratio, request.scaling_mode)
         noise_q = request.noise_q
         color_variation = request.color_variation
         mask_blend_factor = request.mask_blend_factor
+        seed = request.seed
+
+        if seed:
+            np.random.seed(seed)
 
         # TODO figure out expected resolution in noise procedure
         #      this completely breaks with ratios that aren't 1

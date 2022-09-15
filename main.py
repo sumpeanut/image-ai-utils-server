@@ -292,11 +292,7 @@ async def inpainting(websocket: WebSocket):
 
     # Add altered source for debugging
     if request.experimental:
-        data_string = f'data:{mimetypes.types_map[f".{request.output_format.lower()}"]};base64,' \
-        .encode()
-        buffer = BytesIO()
-        source_image.save(buffer, format=request.output_format)
-        response.images.append(data_string + b64encode(buffer.getvalue()))
+        response.images.append(image_to_base64url(source_image))
     
     await websocket.send_json(
         {'status': WebSocketResponseStatus.FINISHED, 'result': json.loads(response.json())}
