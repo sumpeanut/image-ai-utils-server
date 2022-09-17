@@ -282,8 +282,8 @@ class ParlanceZzNoise:
         #MAX_RESOLUTION = (width, height)    
 
         # Apply noise similar to the existing colors (outpainting)
-        if request.experimental:
-            logger.info("Experimental noise")
+        if request.parlance_zz_noise:
+            logger.info("Parlance ZZ noise")
             np_init = (np.asarray(source_image.convert("RGB"))/255.0).astype(np.float64)
             np_mask_rgb = (np.asarray(mask.convert("RGB"))/255.0).astype(np.float64)
 

@@ -36,8 +36,11 @@ class InpaintingRequest(ImageToImageRequest):
     noise_q: float = Field(0.99, ge=0)
     color_variation: float = Field(0.01, ge=0, le=1)
     mask_blend_factor: float = Field(1.0, ge=1)
-    experimental: bool = False
-
+    parlance_zz_noise: bool = False
+    edge_connect: bool = False
+    edge_connect_mode: int = 3
+    edge_threshold: float = Field(0.5, ge=0, le=1)
+    
 
 class GoBigRequest(BaseDiffusionRequest):
     image: bytes
