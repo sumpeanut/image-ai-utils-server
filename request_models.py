@@ -40,6 +40,8 @@ class InpaintingRequest(ImageToImageRequest):
     edge_connect: bool = False
     edge_connect_mode: int = 3
     edge_threshold: float = Field(0.5, ge=0, le=1)
+    sd_infinity: bool = False
+    sd_infinity_mode: str = Field(...)
     
 
 class GoBigRequest(BaseDiffusionRequest):

@@ -32,6 +32,7 @@ from utils import base64url_to_image, image_to_base64url, size_from_aspect_ratio
 
 from parlance_zz_noise import ParlanceZzNoise
 from edge_connect import EdgeConnectFilter
+from sd_infinity import SdInfinityFilter
 
 logger = logging.getLogger(__name__)
 security = HTTPBasic()
@@ -251,7 +252,7 @@ async def inpainting(websocket: WebSocket):
     if request.mask:
         mask = base64url_to_image(request.mask).resize(size)
 
-    filters = [ ParlanceZzNoise(), EdgeConnectFilter() ]
+    filters = [ ParlanceZzNoise(), EdgeConnectFilter(), SdInfinityFilter() ]
     
     for filter in filters:
         source_image = filter.applyTo( request, source_image, mask )
@@ -292,7 +293,7 @@ async def inpainting(websocket: WebSocket):
     )
 
     # Add altered source for debugging
-    if request.parlance_zz_noise or request.edge_connect:
+    if request.parlance_zz_noise or request.edge_connect or request.sd_infinity:
         response.images.append(image_to_base64url(source_image))
     
     await websocket.send_json(

@@ -1,3 +1,6 @@
 [submodule "edge"]
 	path = edge
 	url = https://github.com/sumpeanut/edge-connect
+[submodule "infinity"]
+	path = infinity
+	url = https://github.com/lkwq007/stablediffusion-infinity
