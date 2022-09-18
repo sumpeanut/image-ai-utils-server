@@ -1,4 +1,8 @@
 # Image AI Utils Server
+## License (Reminder)
+Other projects have been referenced that do not share the same license.
+- TODO ensure all licenses are compatible/acceptable before creating PR request back into primary repo
+
 ## Installation
 ### Requirements
 - NVIDIA GPU with at least 10gb of VRAM is highly recomended
